@@ -5,6 +5,7 @@ Guideline Interface - FastAPI interface
 import os
 import re
 import resource
+import shutil
 from typing import List, Dict, Union
 
 import logging
@@ -37,7 +38,10 @@ def retrieve_latest_github_release() -> Path:
     """
     base_path = Path("fhir-recommendations").absolute()
 
-    base_path.mkdir(exist_ok=True)
+    if base_path.exists():
+        shutil.rmtree(base_path)
+
+    base_path.mkdir()
 
     response = requests.get(settings.gh_release_base + "/latest")
     if response.history:
