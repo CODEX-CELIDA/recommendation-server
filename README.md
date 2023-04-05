@@ -23,7 +23,8 @@ This recommendation server can be used as input to the [execution engine][EE].
 
     For example:
 
-    `curl http://localhost:8000/fhir/ActivityDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/recommendations/recommended-action/drug-administration-action/no-antithrombotic-prophylaxis-nadroparin-administration-low-weight`
+    `curl http://localhost:8000/fhir/ActivityDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/guideline/covid19-inpatient-therapy/recommended-action/drug-administration-action/no-antithrombotic-prophylaxis-nadroparin-administration-low-weight`
+
 
 ## Contributing
 
