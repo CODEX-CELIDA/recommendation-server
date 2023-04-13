@@ -3,8 +3,8 @@ Guideline Interface - FastAPI interface
 """
 
 import logging
-import shutil
 import tarfile
+import tempfile
 import warnings
 from pathlib import Path
 from typing import Dict
@@ -33,13 +33,8 @@ def retrieve_latest_github_release() -> Path:
 
     Returns: Path to the downloaded FHIR resources
     """
-    base_path = Path("fhir-recommendations").absolute()
 
-    if base_path.exists():
-        shutil.rmtree(base_path)
-        base_path.rmdir()
-
-    base_path.mkdir()
+    base_path = Path(tempfile.mkdtemp())
 
     response = requests.get(settings.gh_release_base + "/latest")
     if response.history:
