@@ -2,18 +2,15 @@
 Guideline Interface - FastAPI interface
 """
 
-import os
-import re
-import resource
-import shutil
-from typing import List, Dict, Union
-
 import logging
-import requests
-from pathlib import Path
-import yaml
-import warnings
+import shutil
 import tarfile
+import warnings
+from pathlib import Path
+from typing import Dict
+
+import requests
+import yaml
 from fastapi import FastAPI, HTTPException
 from fhir.resources import construct_fhir_element
 from pydantic import BaseSettings
@@ -40,6 +37,7 @@ def retrieve_latest_github_release() -> Path:
 
     if base_path.exists():
         shutil.rmtree(base_path)
+        base_path.rmdir()
 
     base_path.mkdir()
 
