@@ -21,7 +21,7 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
 2. Run container with specified environment variables
    ```bash
    docker run \
-      -e "GH_RELEASE_BASE=https://github.com/CODEX-CELIDA/celida-recommendations/releases"
+      -e "GH_RELEASE_BASE=https://github.com/CODEX-CELIDA/celida-recommendations/releases" \
       -e "PACKAGE_NAME_TEMPLATE=recommendations.celida.codex.netzwerk-universitaetsmedizin.de-{version}.tgz" \
       -dp 8000:80 glichtner/celida-recommendation-server
    ```
