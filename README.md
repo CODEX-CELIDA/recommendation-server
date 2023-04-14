@@ -14,10 +14,12 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
 
 1. Pull image from docker hub
 
-   `docker pull glichtner/celida-recommendation-server:latest`
+   ```bash
+   docker pull glichtner/celida-recommendation-server:latest
+   ```
 
 2. Run container with specified environment variables
-   ```
+   ```bash
    docker run \
       -e "GH_RELEASE_BASE=https://github.com/CODEX-CELIDA/celida-recommendations/releases"
       -e "PACKAGE_NAME_TEMPLATE=recommendations.celida.codex.netzwerk-universitaetsmedizin.de-{version}.tgz" \
@@ -29,21 +31,29 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
 1. Clone this repository
 2. Build image:
 
-    `docker build -t celida/recommendation-server .`
+   ```bash
+    docker build -t celida/recommendation-server .
+    ```
 
 3. Run container:
 
-    `docker run --env-file celida.env -dp 8000:80 celida/recommendation-server`
+    ```bash
+    docker run --env-file celida.env -dp 8000:80 celida/recommendation-server
+    ```
 
 ## Querying
 
 Query the server:
 
-    `curl http://localhost:8000/<resource-type>?_url=<url>`
+```bash
+curl "http://localhost:8000/{fhir-resource-type}?url={url}"
+```
 
 For example:
 
-   `curl http://localhost:8000/fhir/ActivityDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/guideline/covid19-inpatient-therapy/recommended-action/drug-administration-action/no-antithrombotic-prophylaxis-nadroparin-administration-low-weight`
+```bash
+curl "http://localhost:8000/fhir/ActivityDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/guideline/covid19-inpatient-therapy/recommended-action/drug-administration-action/no-antithrombotic-prophylaxis-nadroparin-administration-low-weight"
+```
 
 
 ## Contributing
