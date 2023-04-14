@@ -106,9 +106,24 @@ def load_recommendations() -> Dict[str, Dict]:
     return resource_store
 
 
+init = False
 app = FastAPI()
 settings = Settings()
 resource_store = load_recommendations()
+init = True
+
+
+@app.get("/health")
+async def health() -> str:
+    """
+    Health check endpoint.
+
+    Returns: "OK"
+    """
+    if init:
+        return "OK"
+    else:
+        raise HTTPException(status_code=500, detail="Not initialized")
 
 
 @app.get("/fhir/{resource_name}")
