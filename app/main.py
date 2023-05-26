@@ -61,7 +61,7 @@ def retrieve_latest_github_release() -> Path:
 
     logger.info(f"Loaded recommendations from {package_url}")
 
-    return base_path / "package" / "example"
+    return base_path / "package"
 
 
 def load_recommendations() -> Dict[str, Dict]:
@@ -77,6 +77,9 @@ def load_recommendations() -> Dict[str, Dict]:
 
         with open(fname) as file:
             data = yaml.full_load(file)
+
+        if "resourceType" not in data:
+            continue
 
         if data["resourceType"] == "ImplementationGuide":
             continue
