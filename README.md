@@ -23,7 +23,9 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
    docker run \
       -e "GH_RELEASE_BASE=https://github.com/CODEX-CELIDA/celida-recommendations/releases" \
       -e "PACKAGE_NAME_TEMPLATE=recommendations.celida.codex.netzwerk-universitaetsmedizin.de-{version}.tgz" \
-      -dp 8000:80 glichtner/celida-recommendation-server
+      --name celida-recommendation-server \
+      -dp 8000:80 \
+      glichtner/celida-recommendation-server
    ```
 
 ### Build image yourself
