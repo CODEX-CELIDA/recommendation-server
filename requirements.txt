@@ -1,4 +1,6 @@
-requests>=2.25.1
-python-dotenv>=0.17.0
-pyyaml>=5.4.1
+requests==2.31.0
+python-dotenv==1.0.0
+pyyaml==6.0.1
 git+https://github.com/glichtner/fhir.resources#R5
+fastapi==0.109.0
+pydantic==1.10.13
