@@ -6,14 +6,16 @@ import logging
 
 from config import Settings
 from fastapi import FastAPI, HTTPException
-from utils import load_recommendations
+from utils import get_release_paths_from_disk, load_recommendations
 
 logger = logging.getLogger("uvicorn")
 
 init = False
 app = FastAPI()
 settings = Settings()
-resource_store = load_recommendations(repository_url=settings.gh_repository)
+resource_store = load_recommendations(
+    get_release_paths_from_disk(settings.recommendation_path)
+)
 init = True
 
 
@@ -31,7 +33,9 @@ async def health() -> str:
 
 
 @app.get("/fhir/{resource_name}")
-async def serve_resources(resource_name: str, url: str, version: str = "latest") -> str:
+async def serve_resources(
+    resource_name: str, url: str, version: str = "latest"
+) -> dict:
     """
     Serve FHIR resources from the local storage.
 
