@@ -1,4 +1,5 @@
 import logging
+import os
 import tarfile
 import tempfile
 import warnings
@@ -29,11 +30,28 @@ def get_github_releases(owner: str, repo: str) -> dict:
             f"Could not retrieve releases from {url} (status code {response.status_code})"
         )
 
-    return response.json()  # Returns a list of releases in JSON format
+    return response.json()
+
+
+def get_latest_release_tag(owner: str, repo: str) -> str:
+    """
+    Retrieve the latest release tag of a GitHub repository.
+    """
+    url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
+    response = requests.get(url, timeout=HTTP_TIMEOUT)
+
+    if response.status_code != 200:
+        raise RuntimeError(
+            f"Could not retrieve latest release from {url} (status code {response.status_code})"
+        )
+
+    return response.json()["tag_name"]
 
 
 def retrieve_release_from_github(
-    repository_url: str, include_versions: list[str] | None = None
+    repository_url: str,
+    include_versions: list[str] | None = None,
+    target_path: Path | None = None,
 ) -> Dict[str, Path]:
     """
     Retrieve all releases of the guideline repository from GitHub.
@@ -41,15 +59,27 @@ def retrieve_release_from_github(
     Args:
         repository_url: URL to the GitHub repository
         include_versions: List of versions to include (optional)
+        target_path: Path to the target directory (optional)
     Returns: Dict with paths to the downloaded FHIR resources for each release
     """
 
     owner, repo = repository_url.split("/")[3:5]
 
-    base_path = Path(tempfile.mkdtemp())
+    if target_path is None:
+        base_path = Path(tempfile.mkdtemp())
+    else:
+        base_path = target_path
+
+        if not base_path.exists():
+            base_path.mkdir(parents=True, exist_ok=True)
+
+    # get absolute path
+    base_path = base_path.resolve()
+
     release_paths = {}
 
     releases = get_github_releases(owner, repo)
+    latest_tag = get_latest_release_tag(owner, repo)
 
     for release in releases:
         package_version = release["tag_name"]
@@ -78,21 +108,34 @@ def retrieve_release_from_github(
 
         release_paths[package_version] = release_path
 
-    release_paths["latest"] = release_paths[releases[0]["tag_name"]]
+        if package_version == latest_tag:
+            # create a symlink to the latest release
+            latest_path = base_path / "latest"
+            os.symlink(release_path, latest_path)
+            release_paths["latest"] = latest_path
 
     return release_paths
 
 
-def load_recommendations(
-    repository_url: str, include_versions: list[str] | None = None
-) -> Dict[str, Dict]:
+def get_release_paths_from_disk(target_path: str) -> dict[str, Path]:
+    """
+    Retrieve all releases of the guideline repository from GitHub.
+    """
+    release_paths = {}
+
+    for entry in os.listdir(target_path):
+        full_path = Path(target_path) / entry
+
+        if full_path.is_dir():
+            release_paths[entry] = full_path
+
+    return release_paths
+
+
+def load_recommendations(release_paths: dict[str, Path]) -> Dict[str, Dict]:
     """
     Load all guideline recommendations from local storage into memory.
     """
-
-    release_paths = retrieve_release_from_github(
-        repository_url, include_versions=include_versions
-    )
 
     resource_store: Dict[str, Dict] = {}
 

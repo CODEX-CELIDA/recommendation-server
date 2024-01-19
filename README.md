@@ -53,7 +53,7 @@ curl "http://localhost:8000/{fhir-resource-type}?url={url}"
 For example:
 
 ```bash
-curl "http://localhost:8000/fhir/ActivityDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/guideline/covid19-inpatient-therapy/recommended-action/drug-administration-action/no-antithrombotic-prophylaxis-nadroparin-administration-low-weight"
+curl "http://localhost:8000/fhir/PlanDefinition?url=https://www.netzwerk-universitaetsmedizin.de/fhir/codex-celida/guideline/covid19-inpatient-therapy/intervention-plan/peep-fio2-point4"
 ```
 
 
