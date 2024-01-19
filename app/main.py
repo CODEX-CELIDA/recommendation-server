@@ -4,10 +4,9 @@ Guideline Interface - FastAPI interface
 
 import logging
 
+from config import Settings
 from fastapi import FastAPI, HTTPException
-
-from app.config import Settings
-from app.utils import load_recommendations
+from utils import load_recommendations
 
 logger = logging.getLogger("uvicorn")
 
