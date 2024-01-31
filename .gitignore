@@ -1,6 +1,7 @@
 .py[cod]
 __pycache__/
 
+ca_root/
 # C extensions
 *.so
 
