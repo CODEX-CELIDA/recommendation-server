@@ -2,5 +2,5 @@ requests==2.31.0
 python-dotenv==1.0.0
 pyyaml==6.0.1
 git+https://github.com/glichtner/fhir.resources#R5
-fastapi==0.109.0
+fastapi==0.109.1
 pydantic==1.10.13
