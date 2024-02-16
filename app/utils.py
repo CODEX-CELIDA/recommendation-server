@@ -10,6 +10,20 @@ import requests
 import yaml
 from fhir.resources import construct_fhir_element
 
+DISABLE_SSL_VERIFY: bool = os.environ.get("DISABLE_SSL_VERIFY", "0") == "1"
+
+if DISABLE_SSL_VERIFY:
+    requests.packages.urllib3.disable_warnings()  # type: ignore # (requests _has_ attribute packages)
+    requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ":HIGH:!DH:!aNULL"  # type: ignore # (requests _has_ attribute packages)
+    try:
+        requests.packages.urllib3.contrib.pyopenssl.util.ssl_.DEFAULT_CIPHERS += (  # type: ignore # (requests _has_ attribute packages)
+            ":HIGH:!DH:!aNULL"
+        )
+    except AttributeError:
+        # no pyopenssl support used / needed / available
+        pass
+
+
 HTTP_TIMEOUT = 10
 
 
@@ -23,7 +37,7 @@ def get_github_releases(owner: str, repo: str) -> dict:
     Returns: List of releases
     """
     url = f"https://api.github.com/repos/{owner}/{repo}/releases"
-    response = requests.get(url, timeout=HTTP_TIMEOUT)
+    response = requests.get(url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY)
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -38,7 +52,7 @@ def get_latest_release_tag(owner: str, repo: str) -> str:
     Retrieve the latest release tag of a GitHub repository.
     """
     url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    response = requests.get(url, timeout=HTTP_TIMEOUT)
+    response = requests.get(url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY)
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -93,7 +107,12 @@ def retrieve_release_from_github(
         package_name = assets[0]["name"]
         package_url = assets[0]["browser_download_url"]
 
-        r = requests.get(package_url, allow_redirects=True, timeout=HTTP_TIMEOUT)
+        r = requests.get(
+            package_url,
+            allow_redirects=True,
+            timeout=HTTP_TIMEOUT,
+            verify=not DISABLE_SSL_VERIFY,
+        )
         release_path = base_path / package_version
         release_path.mkdir(parents=True, exist_ok=True)
 
