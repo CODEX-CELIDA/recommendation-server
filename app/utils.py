@@ -98,7 +98,11 @@ def retrieve_release_from_github(
     for release in releases:
         package_version = release["tag_name"]
 
-        if include_versions and package_version not in include_versions:
+        if (
+            include_versions
+            and (package_version not in include_versions)
+            and (package_version != latest_tag)
+        ):
             continue
 
         assets = release["assets"]
