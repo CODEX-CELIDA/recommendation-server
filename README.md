@@ -44,6 +44,12 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
 
 ## Querying
 
+Get all available versions of the fhir package:
+
+```bash
+curl "http://localhost:8000/fhir/version-history"
+```
+
 Query the server:
 
 ```bash

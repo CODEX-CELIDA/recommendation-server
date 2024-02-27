@@ -113,6 +113,19 @@ def test_load_recommendations(release_paths):
 
 
 @pytest.mark.asyncio
+async def test_versions(release_paths):
+    from app.main import get_versions
+
+    versions_return = await get_versions()
+
+    assert isinstance(versions_return, list)
+    assert len(versions_return) > 0
+
+    for version in versions:
+        assert version in versions_return
+
+
+@pytest.mark.asyncio
 async def test_serve_resources(release_paths):
     from app.main import serve_resources
 
