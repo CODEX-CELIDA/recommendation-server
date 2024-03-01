@@ -3,4 +3,4 @@ python-dotenv==1.0.1
 pyyaml==6.0.1
 git+https://github.com/glichtner/fhir.resources#R5
 fastapi==0.109.1
-pydantic==1.10.13
+pydantic==2.6.3
