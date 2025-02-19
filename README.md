@@ -10,6 +10,13 @@ The docker image is available at <https://hub.docker.com/repository/docker/glich
 
 ## Usage
 
+### Run locally
+
+1. Copy `celida.env` to `app/.env` and fill in settings.
+2. `pip install -r requirements.txt`
+3. `cd app`
+4. `uvicorn main:app --reload`
+
 ### Run with docker
 
 1. Pull image from docker hub
