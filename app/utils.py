@@ -27,17 +27,18 @@ if DISABLE_SSL_VERIFY:
 HTTP_TIMEOUT = 10
 
 
-def get_github_releases(owner: str, repo: str) -> dict:
+def get_github_releases(
+    owner: str, repo: str, username: str | None = None, password: str | None = None
+) -> dict:
     """
-    Retrieve all releases of a GitHub repository.
-
-    Args:
-        owner: Owner of the repository
-        repo: Name of the repository
-    Returns: List of releases
+    Get all releases from GitHub.
     """
     url = f"https://api.github.com/repos/{owner}/{repo}/releases"
-    response = requests.get(url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY)
+    auth = (username, password) if username and password else None
+
+    response = requests.get(
+        url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY, auth=auth
+    )
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -47,12 +48,18 @@ def get_github_releases(owner: str, repo: str) -> dict:
     return response.json()
 
 
-def get_latest_release_tag(owner: str, repo: str) -> str:
+def get_latest_release_tag(
+    owner: str, repo: str, username: str | None = None, password: str | None = None
+) -> str:
     """
-    Retrieve the latest release tag of a GitHub repository.
+    Get latest release.
     """
     url = f"https://api.github.com/repos/{owner}/{repo}/releases/latest"
-    response = requests.get(url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY)
+    auth = (username, password) if username and password else None
+
+    response = requests.get(
+        url, timeout=HTTP_TIMEOUT, verify=not DISABLE_SSL_VERIFY, auth=auth
+    )
 
     if response.status_code != 200:
         raise RuntimeError(
@@ -66,34 +73,27 @@ def retrieve_release_from_github(
     repository_url: str,
     include_versions: list[str] | None = None,
     target_path: Path | None = None,
+    username: str | None = None,
+    password: str | None = None,
 ) -> Dict[str, Path]:
     """
-    Retrieve all releases of the guideline repository from GitHub.
+    Download releases from GitHub.
 
-    Args:
-        repository_url: URL to the GitHub repository
-        include_versions: List of versions to include (optional)
-        target_path: Path to the target directory (optional)
-    Returns: Dict with paths to the downloaded FHIR resources for each release
     """
-
     owner, repo = repository_url.split("/")[3:5]
 
     if target_path is None:
         base_path = Path(tempfile.mkdtemp())
     else:
         base_path = target_path
-
         if not base_path.exists():
             base_path.mkdir(parents=True, exist_ok=True)
 
-    # get absolute path
     base_path = base_path.resolve()
-
     release_paths = {}
 
-    releases = get_github_releases(owner, repo)
-    latest_tag = get_latest_release_tag(owner, repo)
+    releases = get_github_releases(owner, repo, username, password)
+    latest_tag = get_latest_release_tag(owner, repo, username, password)
 
     for release in releases:
         package_version = release["tag_name"]
@@ -109,14 +109,22 @@ def retrieve_release_from_github(
         assert len(assets) == 1, "There should be exactly one asset per release"
 
         package_name = assets[0]["name"]
-        package_url = assets[0]["browser_download_url"]
+        package_url = assets[0]["url"]
+
+        headers = {"Accept": "application/octet-stream"}
+        if username and password:
+            headers["Authorization"] = "token " + password
 
         r = requests.get(
             package_url,
             allow_redirects=True,
             timeout=HTTP_TIMEOUT,
             verify=not DISABLE_SSL_VERIFY,
+            headers=headers,
         )
+
+        assert r.status_code == 200, f"Invalid status code {r.status_code}"
+
         release_path = base_path / package_version
         release_path.mkdir(parents=True, exist_ok=True)
 
@@ -124,15 +132,13 @@ def retrieve_release_from_github(
             f.write(r.content)
 
         tar = tarfile.open(release_path / package_name, "r:gz")
-        tar.extractall(release_path)  # nosec (need to extract all files)
+        tar.extractall(release_path)  # nosec
         tar.close()
 
         logging.info(f"Loaded recommendations from {package_url} into {release_path}")
-
         release_paths[package_version] = release_path
 
         if package_version == latest_tag:
-            # create a symlink to the latest release
             latest_path = base_path / "latest"
             os.symlink(release_path, latest_path)
             release_paths["latest"] = latest_path

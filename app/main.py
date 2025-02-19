@@ -13,6 +13,9 @@ logger = logging.getLogger("uvicorn")
 init = False
 app = FastAPI()
 settings = Settings()
+
+settings.recommendation_path.mkdir(exist_ok=True)
+
 resource_store = load_recommendations(
     get_release_paths_from_disk(settings.recommendation_path)
 )

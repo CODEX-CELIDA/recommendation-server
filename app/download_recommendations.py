@@ -1,6 +1,7 @@
 """
 This script downloads the latest release from the GitHub repository specified in the configuration file.
 """
+
 import logging
 import shutil
 
@@ -14,6 +15,9 @@ if settings.recommendation_path.exists():
     shutil.rmtree(settings.recommendation_path)
 
 retrieve_release_from_github(
-    repository_url=settings.gh_repository, target_path=settings.recommendation_path
+    repository_url=settings.gh_repository,
+    target_path=settings.recommendation_path,
+    username=settings.git_username,
+    password=settings.git_token,
 )
 logging.info("Downloaded releases from GitHub")
